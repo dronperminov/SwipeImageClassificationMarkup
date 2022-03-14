@@ -1,3 +1,18 @@
+const LEFT = "LEFT"
+const RIGHT = "RIGHT"
+const UP = "UP"
+const DOWN = "DOWN"
+
+const THRESHOLD = 0.4
+const MIN_PIXELS_SHIFT = 5
+
+const NAMES = {
+    LEFT: 'влево',
+    RIGHT: 'вправо',
+    UP: 'вверх',
+    DOWN: 'вниз',
+}
+
 function SwipeMarkup(imgURL, labels, divId, isFullScreen) {
     this.labels = labels
     this.isFullScreen = isFullScreen
@@ -62,20 +77,20 @@ SwipeMarkup.prototype.MakeIcon = function(color) {
     return icon
 }
 
-SwipeMarkup.prototype.InitLabel = function(index) {
-    let label = this.labels[index]
+SwipeMarkup.prototype.InitLabel = function(dir) {
+    let label = this.labels[dir]
 
     let cell = document.createElement('div')
     cell.className = 'labels-cell'
 
     let labelBtn = document.createElement('div')
     labelBtn.className = 'label-btn'
-    labelBtn.addEventListener('click', () => this.Swipe(index == 0 ? -1 : 1))
+    labelBtn.addEventListener('click', () => this.Swipe(dir))
 
     labelBtn.appendChild(this.MakeIcon(label['background']))
 
     let labelText = document.createElement('div')
-    labelText.innerHTML = label['name']
+    labelText.innerHTML = label['name'] + '<br>(' + NAMES[dir] + ')'
 
     cell.appendChild(labelBtn)
     cell.appendChild(labelText)
@@ -87,8 +102,8 @@ SwipeMarkup.prototype.InitLabelsBlock = function() {
     this.labelsBox = document.createElement('div')
     this.labelsBox.className = 'labels-box'
 
-    this.InitLabel(0)
-    this.InitLabel(1)
+    for (let dir of Object.keys(this.labels))
+        this.InitLabel(dir)
 
     this.mainBox.appendChild(this.labelsBox)
 }
@@ -113,34 +128,77 @@ SwipeMarkup.prototype.InitSizes = function() {
     this.canvas.height = this.height
 }
 
+SwipeMarkup.prototype.GetDirection = function() {
+    let dx = this.currX - this.prevX
+    let dy = this.currY - this.prevY
+
+    if (Math.abs(dx) < MIN_PIXELS_SHIFT && Math.abs(dy) < MIN_PIXELS_SHIFT)
+        return null
+
+    let partX = dx / this.imageWidth
+    let partY = dy / this.imageHeight
+
+    let dir = null
+    let delta = 0
+    let isSwipe = false
+
+    if (Math.abs(partX) > Math.abs(partY)) {
+        dir = partX < 0 ? LEFT : RIGHT
+        delta = Math.abs(dx) / this.width
+        isSwipe = delta > THRESHOLD
+    }
+    else {
+        dir = partY < 0 ? UP : DOWN
+        delta = Math.abs(dy) / this.height
+        isSwipe = delta > THRESHOLD
+    }
+
+    if (Object.keys(this.labels).indexOf(dir) == -1)
+        return null
+
+    return { dir: dir, delta: delta, isSwipe: isSwipe }
+}
+
 SwipeMarkup.prototype.DrawLabels = function() {
     this.ctx.textAlign = 'center'
     this.ctx.textBaseline = 'middle'
     this.ctx.font = '20px sans-serif'
 
-    let dx = this.currX - this.prevX
+    let direction = this.GetDirection()
 
-    if (Math.abs(dx) < 2)
+    if (direction == null)
         return
 
-    let part = dx / this.imageWidth
-    let index = dx < 0 ? 0 : 1
-
-    let scale = Math.max(0, Math.min(255, Math.floor(Math.abs(part * 256))))
+    let scale = Math.max(0, Math.min(255, Math.floor(direction.delta * 256)))
     let hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F']
-    let label = this.labels[index]
+    let label = this.labels[direction.dir]
 
     this.ctx.fillStyle = label['background'] + hex[scale >> 4] + hex[scale % 16]
     this.ctx.fillRect(0, 0, this.width, this.height)
+
     this.ctx.fillStyle = label['color']
     this.ctx.fillText(label['name'], this.width / 2, this.height / 2)
+
+    if (direction.isSwipe) {
+        this.ctx.fillText('Отпустите, чтобы смахнуть', this.width / 2, this.height / 2 + 20)
+    }
 }
 
 SwipeMarkup.prototype.Draw = function() {
     this.ctx.clearRect(0, 0, this.width, this.height)
 
     let dx = this.isPressed || this.isSwiping ? this.currX - this.prevX : 0
-    this.ctx.drawImage(this.image, this.imageX + dx, this.imageY, this.imageWidth, this.imageHeight)
+    let dy = this.isPressed || this.isSwiping ? this.currY - this.prevY : 0
+
+    if (this.GetDirection() == null) {
+        this.ctx.drawImage(this.image, this.imageX, this.imageY, this.imageWidth, this.imageHeight)
+    }
+    else if (Math.abs(dx) > Math.abs(dy)) {
+        this.ctx.drawImage(this.image, this.imageX + dx, this.imageY, this.imageWidth, this.imageHeight)
+    }
+    else {
+        this.ctx.drawImage(this.image, this.imageX, this.imageY + dy, this.imageWidth, this.imageHeight)
+    }
 
     if (this.isPressed || this.isSwiping) {
         this.DrawLabels()
@@ -158,11 +216,11 @@ SwipeMarkup.prototype.MouseDown = function(x, y) {
 }
 
 SwipeMarkup.prototype.MouseUp = function() {
-    let dx = this.currX - this.prevX
+    let direction = this.GetDirection()
 
-    if (this.isPressed && Math.abs(dx) > this.width / 3) {
+    if (this.isPressed && direction != null && direction.isSwipe) {
         this.isPressed = false
-        this.SwipeFrom(Math.sign(dx))
+        this.SwipeFrom(direction.dir)
     }
     else {
         this.isPressed = false
@@ -205,34 +263,49 @@ SwipeMarkup.prototype.TouchMove = function(e) {
         this.MouseMove(e.targetTouches[0].clientX, e.targetTouches[0].clientY)
 }
 
-SwipeMarkup.prototype.SwipeFrom = function(dir, point) {
+SwipeMarkup.prototype.SwipeFrom = function(dir) {
     this.isPressed = false
 
     let steps = 10
     let step = 1
 
     let interval = setInterval(() => {
-        this.currX += dir * this.width / 4 / steps * step
+        if (dir == LEFT) {
+            this.currX -= this.width / 4 / steps * step
+        }
+        else if (dir == RIGHT) {
+            this.currX += this.width / 4 / steps * step
+        }
+        else if (dir == UP) {
+            this.currY -= this.height / 4 / steps * step
+        }
+        else if (dir == DOWN) {
+            this.currY += this.height / 4 / steps * step
+        }
+
         step += 0.5
         this.isSwiping = true
         this.Draw()
 
-        if (Math.abs(this.currX - this.prevX) > this.width) {
+        if (Math.abs(this.currX - this.prevX) > this.width || Math.abs(this.currY - this.prevY) > this.height) {
             clearInterval(interval)
             this.isSwiping = false
-            this.Classify((dir + 1) >> 1)
+            this.Classify(dir)
         }
     }, 30)
 }
 
 SwipeMarkup.prototype.Swipe = function(dir) {
     this.currX = this.width / 2
-    this.prevX = this.width / 2
+    this.currY = this.height / 2
 
-    this.SwipeFrom(dir, this.width / 2)
+    this.prevX = this.width / 2
+    this.prevY = this.height / 2
+
+    this.SwipeFrom(dir)
 }
 
-SwipeMarkup.prototype.Classify = function(index) {
-    alert(`Классифицировано как ${this.labels[index]["name"]}`)
+SwipeMarkup.prototype.Classify = function(dir) {
+    alert(`Классифицировано как ${this.labels[dir]["name"]}`)
     document.location.reload()
 }

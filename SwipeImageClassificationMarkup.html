@@ -21,12 +21,17 @@
 
     <script src="swipe_markup.js"></script>
     <script>
-        let labels = [
-            { "name": "Class 1", "color": "#fff", "background": "#7699d4" },
-            { "name": "Class 2", "color": "#fff", "background": "#dd7373" }
-        ]
+        let labels = {
+            LEFT: { "name": "Class 1", "color": "#fff", "background": "#dd7373" },
+            UP: { "name": "Class 2", "color": "#fff", "background": "#4caf50" },
+            RIGHT: { "name": "Class 3", "color": "#fff", "background": "#7699d4" },
+            DOWN: { "name": "Class 4", "color": "#fff", "background": "#ff9800" },
+        }
 
-        let markup = new SwipeMarkup("imgs/img.jpg", labels, "markup", true)
+        let imgs = ['imgs/img.jpg', 'imgs/img2.jpg', 'imgs/img3.jpg', 'imgs/img4.jpg', 'imgs/img5.jpg']
+        let img = imgs[Math.floor(Math.random() * imgs.length)]
+
+        let markup = new SwipeMarkup(img, labels, "markup", true)
     </script>
 </body>
 </html>
