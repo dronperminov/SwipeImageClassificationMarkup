@@ -17,15 +17,19 @@ const NAMES = {
     DOWN: 'вниз',
 }
 
-function SwipeMarkup(imgURL, labels, divId, isFullScreen) {
+function SwipeMarkup(title, items, imgURL, labels, divId, isFullScreen) {
     this.labels = labels
+    this.title = title
     this.isFullScreen = isFullScreen
-
-    this.InitBlocks(divId)
 
     this.image = new Image()
     this.image.src = imgURL
-    this.image.onload = () => this.InitialDraw()
+    this.image.onload = () => this.Init(divId, items)
+}
+
+SwipeMarkup.prototype.Init = function(id, items) {
+    this.InitBlocks(id, items)
+    this.InitialDraw()
 
     window.addEventListener('resize', () => this.InitialDraw())
 
@@ -46,14 +50,51 @@ SwipeMarkup.prototype.InitialDraw = function() {
     this.Draw()
 }
 
-SwipeMarkup.prototype.InitBlocks = function(id) {
+SwipeMarkup.prototype.InitBlocks = function(id, items) {
     this.mainBox = document.getElementById(id)
 
+    this.InitMenuBlock(items)
     this.InitCanvasBlock()
     this.InitLabelsBlock()
 
     this.isPressed = false
     this.isSwiping = false
+}
+
+SwipeMarkup.prototype.InitMenuBlock = function(items) {
+    this.menuBlock = document.createElement('div')
+    this.menuBlock.className = 'menu-box'
+
+    let titleBox = document.createElement('div')
+    titleBox.className = 'title-box'
+    titleBox.innerHTML = this.title
+
+    let menuIcon = document.createElement('div')
+    menuIcon.className = 'menu-icon'
+    menuIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M 2 5 L 2 7 L 22 7 L 22 5 L 2 5 z M 2 11 L 2 13 L 22 13 L 22 11 L 2 11 z M 2 17 L 2 19 L 22 19 L 22 17 L 2 17 z"></path></svg>'
+    menuIcon.addEventListener('click', () => this.ToggleMenu())
+
+    this.menuBlock.appendChild(titleBox)
+    this.menuBlock.appendChild(menuIcon)
+    this.InitMenu(items)
+
+    this.mainBox.appendChild(this.menuBlock)
+}
+
+SwipeMarkup.prototype.InitMenu = function(items) {
+    this.menu = document.createElement('span')
+    this.menu.className = 'menu'
+    this.menu.innerHTML = items.join('<hr>')
+    this.menu.style.display = 'none'
+    this.menuBlock.appendChild(this.menu)
+}
+
+SwipeMarkup.prototype.ToggleMenu = function() {
+    this.menu.style.display = this.menu.style.display == 'none' ? '' : 'none'
+}
+
+SwipeMarkup.prototype.CloseMenu = function() {
+    this.menu.style.display = 'none'
 }
 
 SwipeMarkup.prototype.InitCanvasBlock = function() {
@@ -115,8 +156,9 @@ SwipeMarkup.prototype.InitLabelsBlock = function() {
 }
 
 SwipeMarkup.prototype.InitSizes = function() {
+    let padding = this.menuBlock.offsetHeight + this.labelsBox.offsetHeight + 5
     this.width = (this.isFullScreen ? window.innerWidth : this.mainBox.clientWidth)
-    this.height = (this.isFullScreen ? window.innerHeight : this.mainBox.clientHeight) - this.labelsBox.offsetHeight - 5
+    this.height = (this.isFullScreen ? window.innerHeight : this.mainBox.clientHeight) - padding
 
     let scaleWidth = this.width / this.image.width
     let scaleHeight = this.height / this.image.height
@@ -234,6 +276,7 @@ SwipeMarkup.prototype.MouseDown = function(x, y) {
     this.prevY = y
     this.isPressed = true
 
+    this.CloseMenu()
     this.Draw()
 }
 
@@ -294,6 +337,7 @@ SwipeMarkup.prototype.KeyDown = function(e) {
 
 SwipeMarkup.prototype.SwipeFrom = function(dir) {
     this.isPressed = false
+    this.CloseMenu()
 
     let steps = 10
     let step = 1

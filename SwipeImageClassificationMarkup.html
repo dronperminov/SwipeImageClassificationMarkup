@@ -4,20 +4,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Swipe image classification markup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
         canvas { cursor: pointer; pointer-events: none; }
         .markup { width: 100vw; height: 100vh; }
 
+        .menu-box { text-align: center; color: #000; position: relative; min-height: 36px; display: table; width: 100%; border-bottom: 1px solid #aaa }
+        .title-box { display: table-cell; vertical-align: middle; }
+        .menu-icon { position: absolute; top: 2px; right: 5px; width: 32px; height: 32px; cursor: pointer; }
+        .menu { position: absolute; top: 36px; right: 0px; display: inline-block; padding: 5px 10px; background: #fff; border: 1px solid #aaa; text-align: left; line-height: 1.5; }
+        .menu a { text-decoration: none; }
         .labels-box { display: table; width: 100%; color: #aaa }
         .labels-cell { display: table-cell; text-align: center; }
         .label-btn { display: inline-block; width: 32px; height: 32px; border-radius: 100%; border: 1px solid #aaa; background: #fff; text-align: center; vertical-align: middle; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="markup" id="markup"></div><br>
-    <div class="markup" id="markup-2"></div>
+    <div class="markup" id="markup"></div>
 
     <script src="swipe_markup.js"></script>
     <script>
@@ -28,10 +33,19 @@
             DOWN: { "name": "Class 4", "color": "#fff", "background": "#ff9800" },
         }
 
-        let imgs = ['imgs/img.jpg', 'imgs/img2.jpg', 'imgs/img3.jpg', 'imgs/img4.jpg', 'imgs/img5.jpg']
-        let img = imgs[Math.floor(Math.random() * imgs.length)]
+        let items = [
+            '<a href="#"><i class="fa fa-question"></i> Манифест</a>',
+            '<a href="#"><i class="fa fa-rotate-left"></i> Восстановить прошлую</a>',
+            '<a href="#"><i class="fa fa-list"></i> История</a>',
+            '<a href="#"><i class="fa fa-download"></i> Скачать разметку</a>'
+        ]
 
-        let markup = new SwipeMarkup(img, labels, "markup", true)
+        let imgs = ['imgs/img.jpg', 'imgs/img2.jpg', 'imgs/img3.jpg', 'imgs/img4.jpg', 'imgs/img5.jpg']
+        let index = Math.floor(Math.random() * imgs.length)
+        let img = imgs[index]
+        let title = `Разметка картинок (${index + 1} / ${imgs.length})`
+
+        let markup = new SwipeMarkup(title, items, img, labels, "markup", true)
     </script>
 </body>
 </html>
