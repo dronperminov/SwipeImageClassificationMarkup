@@ -4,8 +4,11 @@ const UP = "UP"
 const DOWN = "DOWN"
 
 const THRESHOLD = 0.4
-const PIXELS_THRESHOLD = 200
+const PIXELS_THRESHOLD = 100
 const MIN_PIXELS_SHIFT = 5
+
+const USE_IMAGE_AS_BACKGROUND = false
+const STICK_IMAGE_TO_TOP = false
 
 const NAMES = {
     LEFT: 'влево',
@@ -122,7 +125,9 @@ SwipeMarkup.prototype.InitSizes = function() {
     this.imageWidth = this.image.width * this.scale
     this.imageHeight = this.image.height * this.scale
 
-    this.height = Math.min(this.height, this.imageHeight)
+    if (STICK_IMAGE_TO_TOP) {
+        this.height = Math.min(this.height, this.imageHeight)
+    }
 
     this.imageX = (this.width - this.imageWidth) / 2
     this.imageY = (this.height - this.imageHeight) / 2
@@ -187,8 +192,22 @@ SwipeMarkup.prototype.DrawLabels = function() {
     }
 }
 
+SwipeMarkup.prototype.DrawImageAsBackground = function() {
+    let scaleWidth = this.width / this.image.width
+    let scaleHeight = this.height / this.image.height
+    let scale = Math.max(scaleWidth, scaleHeight)
+    let x = (this.width - this.image.width * scale) / 2
+    let y = (this.height - this.image.height * scale) / 2
+
+    this.ctx.drawImage(this.image, x, y, this.image.width * scale, this.image.height * scale)
+}
+
 SwipeMarkup.prototype.Draw = function() {
     this.ctx.clearRect(0, 0, this.width, this.height)
+
+    if (USE_IMAGE_AS_BACKGROUND) {
+        this.DrawImageAsBackground()
+    }
 
     let dx = this.isPressed || this.isSwiping ? this.currX - this.prevX : 0
     let dy = this.isPressed || this.isSwiping ? this.currY - this.prevY : 0
