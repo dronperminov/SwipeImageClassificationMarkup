@@ -4,6 +4,7 @@ const UP = "UP"
 const DOWN = "DOWN"
 
 const THRESHOLD = 0.4
+const PIXELS_THRESHOLD = 200
 const MIN_PIXELS_SHIFT = 5
 
 const NAMES = {
@@ -33,6 +34,8 @@ function SwipeMarkup(imgURL, labels, divId, isFullScreen) {
     this.canvasBox.addEventListener('touchstart', (e) => this.TouchStart(e))
     this.canvasBox.addEventListener('touchmove', (e) => this.TouchMove(e))
     this.canvasBox.addEventListener('touchend', (e) => this.TouchEnd(e))
+
+    document.addEventListener('keydown', (e) => this.KeyDown(e))
 }
 
 SwipeMarkup.prototype.InitialDraw = function() {
@@ -145,12 +148,12 @@ SwipeMarkup.prototype.GetDirection = function() {
     if (Math.abs(partX) > Math.abs(partY)) {
         dir = partX < 0 ? LEFT : RIGHT
         delta = Math.abs(dx) / this.width
-        isSwipe = delta > THRESHOLD
+        isSwipe = delta > THRESHOLD || Math.abs(dx) > PIXELS_THRESHOLD
     }
     else {
         dir = partY < 0 ? UP : DOWN
         delta = Math.abs(dy) / this.height
-        isSwipe = delta > THRESHOLD
+        isSwipe = delta > THRESHOLD || Math.abs(dy) > PIXELS_THRESHOLD
     }
 
     if (Object.keys(this.labels).indexOf(dir) == -1)
@@ -263,6 +266,13 @@ SwipeMarkup.prototype.TouchMove = function(e) {
         this.MouseMove(e.targetTouches[0].clientX, e.targetTouches[0].clientY)
 }
 
+SwipeMarkup.prototype.KeyDown = function(e) {
+    if (e.key.startsWith('Arrow')) {
+        this.Swipe(e.key.substr(5).toUpperCase())
+        e.preventDefault()
+    }
+}
+
 SwipeMarkup.prototype.SwipeFrom = function(dir) {
     this.isPressed = false
 
@@ -296,6 +306,9 @@ SwipeMarkup.prototype.SwipeFrom = function(dir) {
 }
 
 SwipeMarkup.prototype.Swipe = function(dir) {
+    if (Object.keys(this.labels).indexOf(dir) == -1)
+        return
+
     this.currX = this.width / 2
     this.currY = this.height / 2
 
