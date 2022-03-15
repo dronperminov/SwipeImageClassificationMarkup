@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.markup {
+    width: 100vw;
+    height: 100vh;
+}
+
+.markup canvas {
+    cursor: pointer;
+    pointer-events: none;
+}
+
+.menu-box {
+    text-align: center;
+    color: #000;
+    position: relative;
+    min-height: 36px;
+    display: table;
+    width: 100%;
+    border-bottom: 1px solid #aaa
+}
+
+.title-box {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.menu-icon {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+
+.menu {
+    position: absolute;
+    top: 36px;
+    right: 0px;
+    display: inline-block;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid #aaa;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.menu a {
+    text-decoration: none;
+}
+
+.labels-box {
+    display: table;
+    width: 100%;
+    color: #aaa;
+}
+
+.labels-cell {
+    display: table-cell;
+    text-align: center;
+}
+
+.label-btn {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    border: 1px solid #aaa;
+    background: #fff;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
