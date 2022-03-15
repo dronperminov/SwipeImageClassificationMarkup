@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{title}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="swipe_markup.css">
+</head>
+<body>
+    <div class="markup" id="markup"></div>
+
+    <script src="swipe_markup.js"></script>
+    <script>
+        let labels = {labels}
+        let items = [{items}]
+        let img = "{img}"
+        let title = "{task_title}"
+        let markup = new SwipeMarkup(title, items, img, labels, "markup", true)
+    </script>
+</body>
+</html>
