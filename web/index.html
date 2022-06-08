@@ -10,17 +10,12 @@
 <body>
     <div class="markup" id="markup"></div>
 
-    <script src="js/swipe_markup.js"></script>
+    <script src="/js/swipe_markup.js"></script>
     <script>
         let labels = {labels}
+        let items = {items}
 
-        let items = [
-            '<a href="{manifest}"><i class="fa fa-question"></i> Манифест</a>',
-            '<a href="/history"><i class="fa fa-list"></i> История</a>',
-            '<a href="/download"><i class="fa fa-download"></i> Скачать разметку</a>'
-        ]
-
-        let image = "images/{image}"
+        let image = "/images/{image}"
         let title = "{image_title}"
 
         let markup = new SwipeMarkup(title, items, image, labels, "markup", true, (label) => {{

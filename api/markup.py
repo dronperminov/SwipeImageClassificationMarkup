@@ -2,6 +2,7 @@ import json
 import os
 import random
 from typing import List, Tuple
+from collections import OrderedDict
 
 
 class Markup:
@@ -15,11 +16,12 @@ class Markup:
         self.images_path = self.config.get("images_path", "images")
         self.select_mode = self._get_select_mode()
 
+        self.labeled = OrderedDict()
+
         if os.path.exists("labeled.json"):
             with open("labeled.json", "r", encoding="utf-8") as f:
-                self.labeled = json.load(f)
-        else:
-            self.labeled = {}
+                for image, label in json.load(f).items():
+                    self.labeled[image] = label
 
         self._save_labeled()
         self.images = os.listdir(self.images_path)
@@ -60,3 +62,9 @@ class Markup:
 
     def get_lost_title(self) -> str:
         return f'Осталось {len(self.images) - len(self.labeled)} / {len(self.images)}'
+
+    def have_labeled(self) -> bool:
+        return len(self.labeled) > 0
+
+    def get_last_image(self) -> str:
+        return next(reversed(self.labeled))
