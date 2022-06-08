@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Swipe image classification markup</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="swipe_markup.css">
+    <link rel="stylesheet" href="web/css/swipe_markup.css">
 </head>
 <body>
     <div class="markup" id="markup"></div>
 
-    <script src="swipe_markup.js"></script>
+    <script src="web/js/swipe_markup.js"></script>
     <script>
         let labels = {
             LEFT: { "name": "Class 1", "color": "#fff", "background": "#dd7373" },
@@ -31,7 +31,10 @@
         let img = imgs[index]
         let title = `Разметка картинок (${index + 1} / ${imgs.length})`
 
-        let markup = new SwipeMarkup(title, items, img, labels, "markup", true)
+        let markup = new SwipeMarkup(title, items, img, labels, "markup", true, (label) => {
+            alert(`Классифицировано как ${{label}}`)
+            document.location.reload()
+        })
     </script>
 </body>
 </html>

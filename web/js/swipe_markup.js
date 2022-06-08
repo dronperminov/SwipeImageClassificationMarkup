@@ -17,10 +17,11 @@ const NAMES = {
     DOWN: 'вниз',
 }
 
-function SwipeMarkup(title, items, imgURL, labels, divId, isFullScreen) {
+function SwipeMarkup(title, items, imgURL, labels, divId, isFullScreen, onClassify) {
     this.labels = labels
     this.title = title
     this.isFullScreen = isFullScreen
+    this.onClassify = onClassify
 
     this.image = new Image()
     this.image.src = imgURL
@@ -382,6 +383,5 @@ SwipeMarkup.prototype.Swipe = function(dir) {
 }
 
 SwipeMarkup.prototype.Classify = function(dir) {
-    alert(`Классифицировано как ${this.labels[dir]["name"]}`)
-    document.location.reload()
+    this.onClassify(this.labels[dir]["name"])
 }

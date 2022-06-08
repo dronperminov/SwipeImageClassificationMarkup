@@ -1,0 +1,14 @@
+{
+    "title": "Swipe markup",
+    "port": 5000,
+
+    "labels": {
+        "LEFT": { "name": "Первый класс 1", "color": "#fff", "background": "#dd7373" },
+        "UP": { "name": "Class 2", "color": "#fff", "background": "#4caf50" },
+        "RIGHT": { "name": "Class 3", "color": "#fff", "background": "#7699d4" },
+        "DOWN": { "name": "Class 4", "color": "#fff", "background": "#ff9800" }
+    },
+
+    "images_path": "imgs",
+    "select_mode": "sequential"
+}
