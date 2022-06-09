@@ -142,6 +142,7 @@ SwipeMarkup.prototype.InitLabel = function(dir) {
 
     cell.appendChild(labelBtn)
     cell.appendChild(labelText)
+    cell.style.width = `${100 / Object.keys(this.labels).length}%`
 
     this.labelsBox.appendChild(cell)
 }

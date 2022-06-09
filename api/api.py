@@ -28,13 +28,16 @@ def markup_image(image: str):
 
     items.append('<a href="/history"><i class="fa fa-list"></i> История</a>')
     items.append('<a href="/download"><i class="fa fa-download"></i> Скачать разметку</a>')
+    lost_title = markup.get_lost_title()
+    image_title = markup.config.get("image_title", "{lost_title}")
+    image_title = image_title.format(lost_title=lost_title, image=image)
 
     return HTMLResponse(html.format(
         labels=json.dumps(markup.config["labels"], ensure_ascii=False, indent=2),
         items=items,
         image=image,
         title=markup.config.get("title", "Swipe markup"),
-        image_title=markup.config.get("image_title", markup.get_lost_title()),
+        image_title=image_title,
     ))
 
 

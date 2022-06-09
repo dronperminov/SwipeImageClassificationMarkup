@@ -9,6 +9,7 @@
         "DOWN": { "name": "Class 4", "color": "#fff", "background": "#ff9800" }
     },
 
-    "images_path": "imgs",
+    "image_title": "{image}<br>{lost_title}",
+    "images_path": "images",
     "select_mode": "sequential"
 }
